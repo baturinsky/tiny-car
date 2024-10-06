@@ -233,7 +233,7 @@ function write(text: string) {
 }
 
 function updateStatus() {
-  stdiv.innerHTML = `<big>${collected}/${tinyAnomalies.length}</big><br>Tiny Creatures<br/>caught<br/>${formatTime()}`
+  stdiv.innerHTML = `Tiny Creatures<br/>caught</br><big>${collected}/${tinyAnomalies.length}</big><br/>${startTime?"Time<br/>":""}<big>${formatTime()}</big>`
 }
 
 // Main Loop
