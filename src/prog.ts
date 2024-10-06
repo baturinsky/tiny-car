@@ -158,9 +158,11 @@ function render(visibility) {
       }
       let at = add(car.C, d);
       c.font = `${wScale * 60}px Verdana`
+      c.globalAlpha = a.status == 1?Math.sin(Date.now()/100)*0.5+0.5:1;
       c.fillText(a.status == 1 ? "?" : "X", at.x - wScale * 15, at.y)
     }
   }
+  c.globalAlpha = 1;
 
   for (let a of tinyAnomalies) {
     if (a.status == TAKEN)
