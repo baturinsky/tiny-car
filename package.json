@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "concurrently --kill-others \"esbuild src/prog.ts --bundle --outfile=public/bundle.js --watch\" \"http-server -p 5000 public\"",
-    "build": "esbuild src/prog.ts --bundle --outfile=public/minified.js --minify && regpack public/minified.js > public/packed.js"
+    "build": "esbuild src/prog.ts --bundle --outfile=public/bundle.js --minify"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

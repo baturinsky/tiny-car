@@ -1,6 +1,8 @@
 // MINI 2D PHYSICS
 // ===============
 
+import { Anomaly } from "./prog";
+
 export type Vec2 = { x: number, y: number };
 export let abs = a => Math.abs(a)
 
@@ -50,7 +52,8 @@ export type Shape = {
     N: Vec2[];
     /** Vertex: 0: TopLeft, 1: TopRight, 2: BottomRight, 3: BottomLeft (rectangles) */
     X: Vec2[];
-    del: boolean
+    del?: boolean,
+    an?: Anomaly
 }
 
 // 2D vector tools

@@ -12,21 +12,23 @@ Look for them, but do not forget, you do not have much time.
 Do not stay for long, because the space, altered by Tiny Creature, can change unpredictably after it is caught.
 `,
   win: `<h3>WELL DONE!</h3> Looks like that's all Tiny Creature around here. Job well done! It took you $T$ to do it. 
-  For the reference 5 minutes is a good result and 3 minutes is very good.`
+  For the reference, 5 minutes is a good result and 3 minutes is very good.
+  Press SPACE to close this window.`
 }
 
 
 
 const TINY = 1, BLIND = 2, ICE = 3, HIDDEN = 0, KNOWN = 1, TAKEN = 2;
 
-type Anomaly = {
+export type Anomaly = {
   at: Vec2,
   kind: number,
   r: number
   status: number
+  removed?: number
 }
 
-declare var a: HTMLCanvasElement, b: HTMLDivElement, note: HTMLDivElement, noteText: HTMLDivElement, stdiv:HTMLDivElement, okbut:HTMLDivElement;
+declare var a: HTMLCanvasElement, b: HTMLDivElement, note: HTMLDivElement, noteText: HTMLDivElement, stdiv: HTMLDivElement, okbut: HTMLDivElement;
 
 let c = a.getContext('2d') as CanvasRenderingContext2D;
 let i, tic = 0;
@@ -34,14 +36,14 @@ const cruiseControl = false, carSize = { w: 20, h: 40 };
 let stableVel: number;
 let anomalies: Anomaly[] = [];
 let collected = 0;
-let startTime:number;
+let startTime: number;
 
-function formatTime(sec?:number){
-  if(!startTime)
+function formatTime(sec?: number) {
+  if (!startTime)
     return ""
-  sec ??= ~~((Date.now() - startTime)/1000);
-  let minutes = ~~(sec/60);
-  return `${~~(sec/60)}:${`${(10000 + (sec%60))}`.substring(3,5)}`
+  sec ??= ~~((Date.now() - startTime) / 1000);
+  let minutes = ~~(sec / 60);
+  return `${~~(sec / 60)}:${`${(10000 + (sec % 60))}`.substring(3, 5)}`
 }
 
 const tinyRadius = 1000;
@@ -185,7 +187,7 @@ function capVel(m: Shape) {
 }
 
 window.addEventListener('keydown', e => {
-  if(e.code == "Space"){
+  if (e.code == "Space") {
     window.onOk();
   }
   pressed[e.code] = 1
@@ -228,7 +230,7 @@ function write(text: string) {
   noteText.innerHTML = text;
 }
 
-function updateStatus(){
+function updateStatus() {
   stdiv.innerHTML = `<big>${collected}/${tinyAnomalies.length}</big><br>Tiny Creatures<br/>caught<br/>${formatTime()}`
 }
 
@@ -241,12 +243,13 @@ setInterval(
     let mults = [0, 1, 2, 3, 4].map(kind => {
       let [anomaly, dist] = closestAnomaly(kind);
       if (kind == TINY && anomaly.status != TAKEN && dist < 0.001) {
-        if(collected == 0)
+        if (collected == 0)
           startTime = Date.now();
         collected++;
         anomaly.status = TAKEN;
-        if(collected == tinyAnomalies.length){
-          write(texts.win.replace("$T$", formatTime())); 
+        anomaly.removed = Date.now()
+        if (collected == tinyAnomalies.length) {
+          write(texts.win.replace("$T$", formatTime()));
           okbut.style.display = "none";
         } else {
           write(texts.caught);
@@ -338,6 +341,13 @@ setInterval(
     ].map(a => `<div>${a}</div>`).join('')
 
     updatePhysics();
+    for (let o of obstacles) {
+      let removed = o.an?.removed;
+      if (removed && o.T) {
+        let mult = Math.min(10, 1.0001 ** ((Date.now() - removed) / 1000)) * 0.01;
+        rotateShape(o, (rng() - 0.5) * mult);
+      }
+    }
     render(Math.max(0, mults[BLIND] * 1.3 - 0.3));
   },
   16
@@ -361,7 +371,7 @@ let skidMarks: {
 }[][] = []
 let center = Vec2(0, 0);
 
-function addObst(pos: Vec2, scale: number) {
+function addObst(pos: Vec2, scale: number, an?: Anomaly) {
   let shape: Shape;
   if (rng() > 0.3) {
     let size = [scale * (rng() + 1) * 100, scale * (rng() + 1) * 600] as [number, number];
@@ -370,6 +380,7 @@ function addObst(pos: Vec2, scale: number) {
   } else {
     shape = Circle(pos, scale * (rng() + 1) * 200, 0, 1, .5)
   }
+  shape.an = an;
   obstacles.push(shape);
 }
 
@@ -430,9 +441,9 @@ for (let ac of tinyAnomalies) {
         r: 700 * scale,
         status: HIDDEN
       });
+    } else {
+      addObst(at, scale, ac)
     }
-
-    addObst(at, scale)
   }
 }
 

@@ -274,7 +274,8 @@ Look for them, but do not forget, you do not have much time.
 Do not stay for long, because the space, altered by Tiny Creature, can change unpredictably after it is caught.
 `,
     win: `<h3>WELL DONE!</h3> Looks like that's all Tiny Creature around here. Job well done! It took you $T$ to do it. 
-  For the reference 5 minutes is a good result and 3 minutes is very good.`
+  For the reference, 5 minutes is a good result and 3 minutes is very good.
+  Press SPACE to close this window.`
   };
   var TINY = 1;
   var BLIND = 2;
@@ -448,6 +449,7 @@ Do not stay for long, because the space, altered by Tiny Creature, can change un
             startTime = Date.now();
           collected++;
           anomaly.status = TAKEN;
+          anomaly.removed = Date.now();
           if (collected == tinyAnomalies.length) {
             write(texts.win.replace("$T$", formatTime()));
             okbut.style.display = "none";
@@ -510,6 +512,13 @@ Do not stay for long, because the space, altered by Tiny Creature, can change un
         `scale ${wScale}`
       ].map((a2) => `<div>${a2}</div>`).join("");
       updatePhysics();
+      for (let o of obstacles) {
+        let removed = o.an?.removed;
+        if (removed && o.T) {
+          let mult = Math.min(10, 1.0001 ** ((Date.now() - removed) / 1e3)) * 0.01;
+          rotateShape(o, (rng() - 0.5) * mult);
+        }
+      }
       render(Math.max(0, mults[BLIND] * 1.3 - 0.3));
     },
     16
@@ -524,7 +533,7 @@ Do not stay for long, because the space, altered by Tiny Creature, can change un
   var obstacles = [];
   var skidMarks = [];
   var center = Vec2(0, 0);
-  function addObst(pos, scale) {
+  function addObst(pos, scale, an) {
     let shape;
     if (rng() > 0.3) {
       let size = [scale * (rng() + 1) * 100, scale * (rng() + 1) * 600];
@@ -533,6 +542,7 @@ Do not stay for long, because the space, altered by Tiny Creature, can change un
     } else {
       shape = Circle(pos, scale * (rng() + 1) * 200, 0, 1, 0.5);
     }
+    shape.an = an;
     obstacles.push(shape);
   }
   var cols = 20;
@@ -577,8 +587,9 @@ Do not stay for long, because the space, altered by Tiny Creature, can change un
           r: 700 * scale,
           status: HIDDEN
         });
+      } else {
+        addObst(at, scale, ac);
       }
-      addObst(at, scale);
     }
   }
   var car = Rectangle(Vec2(0, R - 50), carSize.w, carSize.h, 10, 0.1, 0.5);
