@@ -2,10 +2,10 @@ import { distance, resizeRect, add, mul, rotateShape, Vec2, Shape, mag, abs, dot
 
 const texts = {
   intro:
-    `Agent! We have detected an anomaly dubbed "Tiny Creature" in the area. 
+    `Agent! We have detected an anomaly dubbed "Tiny Creature" in the area (marked <span style="color:#F00">?</span>).
 As you know, Tiny Creatures "fold" the space around them.
-It can cause some issues with vision and handling when you nearby, but we believe you can overcome them without much problems.
-You should find and collect the creature, along with the other Tiny Creatures in the area if you find them.
+It can cause some issues with vision and handling when you nearby, but we believe you can overcome that without much problems.
+You should find and collect the creature, along with the other Tiny Creatures in the area, if you find them.
 `,
   caught: `You have caught a Tiny Creature. But it's likely there are others in the area.
 Look for them, but do not forget, you do not have much time.
@@ -267,7 +267,14 @@ setInterval(
 
     let l = clip(0, mag(car.V) / wScale - 10, 10);
 
-    car.a = l * (pressed.KeyA ? -1 : pressed.KeyD ? 1 : 0);
+    let key = {
+      f:pressed.KeyW || pressed.ArrowUp,
+      b:pressed.KeyS || pressed.ArrowDown,
+      l:pressed.KeyA || pressed.ArrowLeft,
+      r:pressed.KeyD || pressed.ArrowRight,
+    };
+
+    car.a = l * (key.l ? -1 : key.r ? 1 : 0);
     //car.v = (abs(car.v) * 0.9 - (brakes ? 0 : 0.1)) * Math.sign(car.v);
     //car.v = (abs(car.v) * 0.9 - (brakes ? 0 : 0.1)) * Math.sign(car.v) / Math.max(1,wScale);
     car.v *= 0.9;
@@ -275,10 +282,10 @@ setInterval(
     let accelerate = handling * 200 * (wScale + 0.00001), decelerate = handling * 100 * (wScale + 0.00001);
     let vel = mag(car.V)
 
-    if (!pressed.KeyW && !pressed.KeyS && stableVel && cruiseControl) {
+    if (!key.f && !key.b && stableVel && cruiseControl) {
       car.A = vel < stableVel ? mul(car.N[0], accelerate) : mul(car.N[0], -decelerate);
     } else {
-      car.A = pressed.KeyW ? mul(car.N[0], accelerate) : pressed.KeyS ? mul(car.N[0], -decelerate) : Vec2(0, 0);
+      car.A = key.f ? mul(car.N[0], accelerate) : key.b ? mul(car.N[0], -decelerate) : Vec2(0, 0);
     }
 
     /**Speed along the axes */
@@ -325,10 +332,11 @@ setInterval(
 
     if (dot(car.V, car.N[0]) < 30 || brakes) {
       stableVel = 0
-    } else if (pressed.KeyW || pressed.KeyS) {
+    } else if (key.f || key.b) {
       stableVel = mag(car.V);
     }
 
+    /*
     b.innerHTML = [
       `sv ${stableVel}`,
       drifting ? "DRIFTING" : "ND",
@@ -338,7 +346,7 @@ setInterval(
       ` relVel ${fv2(relVel)}`,
       `friction ${fv2(friction)} `,
       `scale ${wScale}`
-    ].map(a => `<div>${a}</div>`).join('')
+    ].map(a => `<div>${a}</div>`).join('')*/
 
     updatePhysics();
     for (let o of obstacles) {
