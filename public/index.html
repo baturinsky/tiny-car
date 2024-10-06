@@ -1,0 +1,87 @@
+<style>
+    * {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    span {
+        width: 10rem;
+    }
+
+    canvas {
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        width: 960px;
+        height: 960px;
+        top: 0;
+        position: relative;
+    }
+
+    #b {
+        display: flex;
+        flex-direction: row;
+    }
+
+    #b div {
+        width: 150px;
+    }
+
+    #note {
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 500px;
+        margin-top: 20px;
+        margin-bottom: -220px;
+        height: 200px;
+        background: #fff;
+        border: solid 1px black;
+        box-shadow: 2px 2px 2px #000;
+        z-index: 5;
+        text-align: center;
+        padding: 5px;
+    }
+
+    button {
+        background: #fff;
+        box-shadow: 2px 2px 2px #000;
+        cursor: pointer;
+        padding: 10px;
+        font-size: 150%;
+    }
+
+    button:hover {
+        background: #aaa;
+    }
+
+    button:active {
+        transform: translate(0px, 3px);
+    }
+
+    #stdiv {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        background: #fff;
+        border: solid 1px black;
+        box-shadow: 2px 2px 2px #000;
+        padding: 10px;        
+    }
+
+    big{
+        font-size: 150%;        
+    }
+</style>
+<div id=note>
+    <div id="noteText"></div>
+    <button id="okbut" onclick="onOk()">OK</button>
+</div>
+<canvas id=a width=960 height=960 style="border: solid 1px #000;"></canvas>
+<div id=b></div>
+<div id=stdiv></div>
+<script src="bundle.js"></script>
